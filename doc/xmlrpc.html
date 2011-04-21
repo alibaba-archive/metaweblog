@@ -1,0 +1,282 @@
+<html>
+	<head>
+		<title>XML RPC on Nodejs</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px 40px 30px 40px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px 0 30px 40px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }</style>
+		<script>
+			$(function(){
+				$('tr.code').hide();
+				$('tr.filename').toggle(function(){
+					$(this).nextUntil('.filename').fadeIn();
+				}, function(){
+					$(this).nextUntil('.filename').fadeOut();
+				});
+			});
+		</script>
+	</head>
+	<body>
+<table id="source"><tbody><tr><td><h1>XML RPC on Nodejs</h1></td><td></td></tr><tr class="filename"><td><h2 id="lib/xmlrpc.js"><a href="#">xmlrpc</a></h2></td><td>lib/xmlrpc.js</td></tr><tr class="code">
+<td class="docs">
+<p>Module dependencies.
+ </p>
+</td>
+<td class="code">
+<pre><code><span class="keyword">var</span> <span class="variable">libxml</span> = <span class="variable">require</span>(<span class="string">'libxmljs'</span>)
+  , <span class="variable">http</span> = <span class="variable">require</span>(<span class="string">'http'</span>)
+  , <span class="variable">https</span> = <span class="variable">require</span>(<span class="string">'https'</span>)
+  , <span class="variable">urlutil</span> = <span class="variable">require</span>(<span class="string">'url'</span>);
+
+<span class="keyword">function</span> <span class="class">Client</span>(<span class="variable">rpc_url</span>) {
+	<span class="keyword">var</span> <span class="variable">info</span> = <span class="variable">urlutil</span>.<span class="variable">parse</span>(<span class="variable">rpc_url</span>);
+	<span class="this">this</span>.<span class="variable">http_request</span> = <span class="variable">http</span>.<span class="variable">request</span>;
+	<span class="keyword">var</span> <span class="variable">port</span> = <span class="variable">info</span>.<span class="variable">port</span> || <span class="number integer">80</span>;
+	<span class="keyword">if</span>(<span class="variable">info</span>.<span class="variable">protocol</span> == <span class="string">'https:'</span>) {
+		<span class="this">this</span>.<span class="variable">http_request</span> = <span class="variable">https</span>.<span class="variable">request</span>;
+		<span class="keyword">if</span>(!<span class="variable">info</span>.<span class="variable">port</span>) {
+			<span class="variable">port</span> = <span class="number integer">443</span>;
+		}
+	}
+	<span class="this">this</span>.<span class="variable">options</span> = {
+		<span class="variable">host</span>: <span class="variable">info</span>.<span class="variable">hostname</span>,
+		<span class="variable">path</span>: <span class="variable">info</span>.<span class="variable">pathname</span> || <span class="string">'/'</span>,
+		<span class="variable">method</span>: <span class="string">'POST'</span>,
+		<span class="variable">port</span>: <span class="variable">port</span>
+	};
+	<span class="keyword">if</span>(<span class="variable">info</span>.<span class="variable">query</span>) {
+		<span class="this">this</span>.<span class="variable">options</span>.<span class="variable">path</span> += <span class="variable">info</span>.<span class="variable">search</span>;
+	}
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>create xml rpc request data</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  method</p></li><li><p><strong>param</strong>: <em>param1</em>
+, param2, ...</p></li><li><p><strong>param</strong>: <em>Function</em>  callback(result)</p></li><li><p><strong>return</strong>: <em>String</em>  xml string</p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">Client</span>.<span class="variable">prototype</span>.<span class="variable">request</span> = <span class="keyword">function</span>() {
+	<span class="keyword">var</span> <span class="variable">len</span> = <span class="variable">arguments</span>.<span class="variable">length</span> - <span class="number integer">1</span>;
+	<span class="keyword">var</span> <span class="variable">callback</span> = <span class="variable">arguments</span>[<span class="variable">len</span>];
+	<span class="keyword">var</span> <span class="variable">params</span> = [];
+	<span class="keyword">for</span>(<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">len</span>; <span class="variable">i</span>++) {
+		<span class="variable">params</span>.<span class="variable">push</span>(<span class="variable">arguments</span>[<span class="variable">i</span>]);
+	}
+	<span class="keyword">var</span> <span class="variable">body</span> = <span class="this">this</span>.<span class="variable">get_xml</span>.<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">params</span>);
+	<span class="keyword">var</span> <span class="variable">options</span> = <span class="this">this</span>.<span class="variable">options</span>;
+	<span class="keyword">var</span> <span class="variable">that</span> = <span class="this">this</span>;
+	<span class="keyword">var</span> <span class="variable">req</span> = <span class="this">this</span>.<span class="variable">http_request</span>(<span class="variable">options</span>, <span class="keyword">function</span>(<span class="variable">res</span>) {
+		<span class="keyword">var</span> <span class="variable">chunks</span> = [], <span class="variable">length</span> = <span class="number integer">0</span>;
+		<span class="variable">res</span>.<span class="variable">on</span>(<span class="string">'data'</span>, <span class="keyword">function</span>(<span class="variable">chunk</span>) {
+			<span class="variable">length</span> += <span class="variable">chunk</span>.<span class="variable">length</span>;
+			<span class="variable">chunks</span>.<span class="variable">push</span>(<span class="variable">chunk</span>);
+		});
+		<span class="variable">res</span>.<span class="variable">on</span>(<span class="string">'end'</span>, <span class="keyword">function</span>(){
+			<span class="keyword">var</span> <span class="variable">data</span> = <span class="keyword">new</span> <span class="class">Buffer</span>(<span class="variable">length</span>);
+			<span class="keyword">var</span> <span class="variable">error</span> = <span class="keyword">null</span>;
+			<span class="comment">// 延后copy</span>
+			<span class="keyword">for</span>(<span class="keyword">var</span> <span class="variable">i</span>=<span class="number integer">0</span>, <span class="variable">pos</span>=<span class="number integer">0</span>, <span class="variable">size</span>=<span class="variable">chunks</span>.<span class="variable">length</span>; <span class="variable">i</span>&<span class="variable">lt</span>;<span class="variable">size</span>; <span class="variable">i</span>++) {
+				<span class="variable">chunks</span>[<span class="variable">i</span>].<span class="variable">copy</span>(<span class="variable">data</span>, <span class="variable">pos</span>);
+				<span class="variable">pos</span> += <span class="variable">chunks</span>[<span class="variable">i</span>].<span class="variable">length</span>;
+			}
+			<span class="variable">data</span> = <span class="variable">data</span>.<span class="variable">toString</span>();
+			<span class="keyword">if</span>(<span class="variable">res</span>.<span class="variable">statusCode</span> == <span class="number integer">200</span> || <span class="variable">res</span>.<span class="variable">statusCode</span> == <span class="number integer">201</span>) {
+				<span class="variable">data</span> = <span class="variable">that</span>.<span class="variable">parse</span>(<span class="variable">libxml</span>.<span class="variable">parseXmlString</span>(<span class="variable">data</span>));
+			} <span class="keyword">else</span> {
+				<span class="variable">error</span> = <span class="variable">data</span>;
+				<span class="variable">data</span> = <span class="keyword">null</span>;
+			}
+			<span class="keyword">if</span>(<span class="variable">callback</span>) {
+				<span class="variable">callback</span>(<span class="variable">error</span>, <span class="variable">data</span>, <span class="variable">res</span>);
+			}
+		});
+	});
+	<span class="variable">req</span>.<span class="variable">write</span>(<span class="variable">body</span>);
+	<span class="variable">req</span>.<span class="variable">end</span>();
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>create xml rpc request data</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  method</p></li><li><p><strong>param</strong>: <em>param1</em>
+, param2, ...</p></li><li><p><strong>return</strong>: <em>String</em>  xml string</p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">Client</span>.<span class="variable">prototype</span>.<span class="variable">get_xml</span> = <span class="keyword">function</span>() {
+	<span class="keyword">var</span> <span class="variable">method</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
+	<span class="keyword">var</span> <span class="variable">doc</span> = <span class="keyword">new</span> <span class="variable">libxml</span>.<span class="class">Document</span>();
+	<span class="keyword">var</span> <span class="variable">d</span> = <span class="variable">doc</span>.<span class="variable">node</span>(<span class="string">'methodCall'</span>)
+    	.<span class="variable">node</span>(<span class="string">'methodName'</span>, <span class="variable">method</span>)
+    	.<span class="variable">parent</span>();
+	<span class="keyword">if</span>(<span class="variable">arguments</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">1</span>) {
+		<span class="variable">d</span> = <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'params'</span>);
+		<span class="keyword">for</span>(<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">1</span>, <span class="variable">len</span> = <span class="variable">arguments</span>.<span class="variable">length</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">len</span>; <span class="variable">i</span>++) {
+			<span class="this">this</span>.<span class="variable">serialize</span>(<span class="variable">arguments</span>[<span class="variable">i</span>], <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'param'</span>).<span class="variable">node</span>(<span class="string">'value'</span>));
+		}
+	}
+	<span class="keyword">return</span> <span class="variable">doc</span>.<span class="variable">toString</span>();
+};
+
+<span class="class">Client</span>.<span class="variable">prototype</span>.<span class="variable">serialize</span> = <span class="keyword">function</span>(<span class="variable">data</span>, <span class="variable">d</span>) {
+	<span class="keyword">switch</span> (<span class="variable">data</span>.<span class="variable">constructor</span>.<span class="variable">name</span>) {
+	    <span class="keyword">case</span> <span class="string">'Array'</span>:
+	        <span class="keyword">var</span> <span class="variable">data_xml</span> = <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'array'</span>).<span class="variable">node</span>(<span class="string">'data'</span>);
+	        <span class="keyword">for</span>(<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>, <span class="variable">len</span> = <span class="variable">data</span>.<span class="variable">length</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">len</span>; <span class="variable">i</span>++) {
+	            <span class="this">this</span>.<span class="variable">serialize</span>(<span class="variable">data</span>[<span class="variable">i</span>], <span class="variable">data_xml</span>.<span class="variable">node</span>(<span class="string">'value'</span>));
+	        }
+	        <span class="keyword">break</span>;
+	    <span class="keyword">case</span> <span class="string">'Object'</span>:
+	        <span class="keyword">var</span> <span class="variable">struct_xml</span> = <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'struct'</span>);
+	        <span class="keyword">for</span>(<span class="keyword">var</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="variable">data</span>) {
+	            <span class="this">this</span>.<span class="variable">serialize</span>(<span class="variable">data</span>[<span class="variable">i</span>], <span class="variable">struct_xml</span>.<span class="variable">node</span>(<span class="string">'member'</span>).<span class="variable">node</span>(<span class="string">'name'</span>, <span class="variable">i</span>).<span class="variable">parent</span>().<span class="variable">node</span>(<span class="string">'value'</span>));
+	        }
+	        <span class="keyword">break</span>;
+	    <span class="keyword">case</span> <span class="string">'Number'</span>:
+	        <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'int'</span>, <span class="variable">data</span>.<span class="variable">toString</span>());
+	        <span class="keyword">break</span>;
+	    <span class="keyword">case</span> <span class="string">'String'</span>:
+	    	<span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'string'</span>, <span class="variable">data</span>);
+	    	<span class="keyword">break</span>;
+	    <span class="keyword">default</span>:
+	        <span class="variable">d</span>.<span class="variable">node</span>(<span class="string">'string'</span>, <span class="variable">data</span>.<span class="variable">toString</span>());
+	}
+};
+
+<span class="class">Client</span>.<span class="variable">prototype</span>.<span class="variable">parse</span> = <span class="keyword">function</span>(<span class="variable">xml</span>) {
+	<span class="keyword">var</span> <span class="variable">childNodes</span>;
+    <span class="keyword">if</span>(<span class="variable">xml</span>.<span class="variable">constructor</span>.<span class="variable">name</span> === <span class="string">'Array'</span>) {
+        <span class="variable">childNodes</span> = <span class="variable">xml</span>;
+    } <span class="keyword">else</span> {
+        <span class="variable">childNodes</span> = <span class="variable">xml</span>.<span class="variable">childNodes</span>();
+    }
+    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>, <span class="variable">len</span> = <span class="variable">childNodes</span>.<span class="variable">length</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">len</span>; <span class="variable">i</span> ++) {
+    	<span class="keyword">var</span> <span class="variable">child</span> = <span class="variable">childNodes</span>[<span class="variable">i</span>];
+    	<span class="keyword">var</span> <span class="variable">name</span> = <span class="variable">child</span>.<span class="variable">name</span>();
+        <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'struct'</span>) {
+            <span class="keyword">var</span> <span class="variable">members</span> = <span class="variable">child</span>.<span class="variable">find</span>(<span class="string">'member'</span>);
+            <span class="keyword">var</span> <span class="variable">data</span> = {};
+            <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">m</span> <span class="keyword">in</span> <span class="variable">members</span>) {
+                <span class="keyword">var</span> <span class="variable">k</span> = <span class="variable">members</span>[<span class="variable">m</span>].<span class="variable">find</span>(<span class="string">'name'</span>)[<span class="number integer">0</span>].<span class="variable">text</span>();
+                <span class="variable">data</span>[<span class="variable">k</span>] = <span class="this">this</span>.<span class="variable">parse</span>(<span class="variable">members</span>[<span class="variable">m</span>].<span class="variable">find</span>(<span class="string">'value/*'</span>));
+            }
+            <span class="keyword">return</span> <span class="variable">data</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'array'</span>) {
+            <span class="keyword">var</span> <span class="variable">values</span> = <span class="variable">child</span>.<span class="variable">find</span>(<span class="string">'data/value'</span>);
+            <span class="keyword">var</span> <span class="variable">data</span> = [];
+            <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">v</span> <span class="keyword">in</span> <span class="variable">values</span>) {
+            	<span class="variable">data</span>[<span class="variable">v</span>] = <span class="this">this</span>.<span class="variable">parse</span>(<span class="variable">values</span>[<span class="variable">v</span>]);
+            }
+            <span class="keyword">return</span> <span class="variable">data</span>; 
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'string'</span> || <span class="variable">name</span> === <span class="string">'int'</span> || <span class="variable">name</span> === <span class="string">'i4'</span> ||
+        		<span class="variable">name</span> === <span class="string">'dateTime.iso8601'</span> || <span class="variable">name</span> === <span class="string">'double'</span>) {
+            <span class="keyword">return</span> <span class="variable">child</span>.<span class="variable">text</span>();
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">name</span> !== <span class="string">'text'</span>) {
+            <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">parse</span>(<span class="variable">child</span>);
+        }
+    }
+};
+
+<span class="variable">exports</span>.<span class="class">Client</span> = <span class="class">Client</span>;</code></pre>
+</td>
+</tr>	</body>
+</html></tbody></table>

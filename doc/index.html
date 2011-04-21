@@ -1,0 +1,304 @@
+<html>
+	<head>
+		<title>MetaWeblog API on Nodejs</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px 40px 30px 40px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px 0 30px 40px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }</style>
+		<script>
+			$(function(){
+				$('tr.code').hide();
+				$('tr.filename').toggle(function(){
+					$(this).nextUntil('.filename').fadeIn();
+				}, function(){
+					$(this).nextUntil('.filename').fadeOut();
+				});
+			});
+		</script>
+	</head>
+	<body>
+<table id="source"><tbody><tr><td><h1>MetaWeblog API on Nodejs</h1></td><td></td></tr><tr class="filename"><td><h2 id="lib/metaweblog.js"><a href="#">metaweblog</a></h2></td><td>lib/metaweblog.js</td></tr><tr class="code">
+<td class="docs">
+<p>Module dependencies.
+ </p>
+</td>
+<td class="code">
+<pre><code><span class="keyword">var</span> <span class="class">Client</span> = <span class="variable">require</span>(<span class="string">'./xmlrpc'</span>).<span class="class">Client</span>;</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>MetaWeblog API</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  rpc_url, the rpc api url, like <code>http://www.cnblogs.com/fengmk2/services/metaweblog.aspx</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">var</span> <span class="class">MetaWeblog</span> = <span class="variable">exports</span>.<span class="class">MetaWeblog</span> = <span class="keyword">function</span>(<span class="variable">rpc_url</span>) {
+	<span class="this">this</span>.<span class="variable">client</span> = <span class="keyword">new</span> <span class="class">Client</span>(<span class="variable">rpc_url</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Data struct detail</p>
+
+<p>struct BlogInfo</p>
+
+<ul><li>{String} blogid</li><li>{String} url</li><li>{String} blogName</li></ul>
+
+<p>struct Post</p>
+
+<ul><li>{Date} dateCreated - Required when posting.</li><li>{String} description - Required when posting.</li><li>{String} title - Required when posting.</li><li>{Array} categories (optional), array of string</li><li>{Object} enclosure (optional), struct Enclosure</li><li>{String} link (optional)</li><li>{String} permalink (optional)</li><li>{Any} postid (optional)</li><li>{Object} source (optional), struct Source</li><li>{String} userid (optional)</li><li>{Any} mt<em>allow</em>comments (optional)</li><li>{Any} mt<em>allow</em>pings (optional)</li><li>{Any} mt<em>convert</em>breaks (optional)</li><li>{String} mt<em>text</em>more (optional)</li><li>{String} mt_excerpt (optional)</li></ul>
+
+<p>struct CategoryInfo</p>
+
+<ul><li>{String} description</li><li>{String} htmlUrl</li><li>{String} rssUrl</li><li>{String} title</li><li>{String} categoryid</li></ul>
+
+<p>struct FileData</p>
+
+<ul><li>{String} bits, base64</li><li>{String} name</li></ul>
+
+<p>struct UrlData</p>
+
+<ul><li>{String} url</li></ul>
+
+<p>struct Enclosure</p>
+
+<ul><li>{Integer} length (optional)</li><li>{String} type (optional)</li><li>{String} url (optional)</li></ul>
+
+<p>struct Source</p>
+
+<ul><li>{String} name (optional)</li><li><p>{String} url (optional)</p></li></ul>
+</td>
+<td class="code">
+
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Deletes a post.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  appKey</p></li><li><p><strong>param</strong>: <em>String</em>  postid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>param</strong>: <em>Boolean</em>  publish - Where applicable, this specifies whether </p><p>   the blog should be republished after the post has been deleted.</p></li><li><p><strong>return</strong>: <em>Boolean</em>  Always returns true.</p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">deletePost</span> = 
+		<span class="keyword">function</span>(<span class="variable">appKey</span>, <span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">publish</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'blogger.deletePost'</span>, 
+		<span class="variable">appKey</span>, <span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">publish</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Returns information on all the blogs a given user is a member.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  appKey</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>return</strong>: <em>Array</em>  array of struct <code>BlogInfo</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">getUsersBlogs</span> = 
+		<span class="keyword">function</span>(<span class="variable">appKey</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'blogger.getUsersBlogs'</span>, 
+		<span class="variable">appKey</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Updates and existing post to a designated blog using the metaWeblog API. 
+Returns true if completed.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  postid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>param</strong>: <em>Object</em>  post, struct <code>Post</code></p></li><li><p><strong>param</strong>: <em>Boolean</em>  publish</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">editPost</span> = 
+		<span class="keyword">function</span>(<span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">post</span>, <span class="variable">publish</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.editPost'</span>, 
+		<span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">post</span>, <span class="variable">publish</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Retrieves a list of valid categories for a post using the metaWeblog API. 
+Returns the metaWeblog categories struct collection.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  blogid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>return</strong>: <em>Array</em>  array of struct <code>CategoryInfo</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">getCategories</span> = 
+		<span class="keyword">function</span>(<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.getCategories'</span>, 
+			<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Retrieves an existing post using the metaWeblog API. 
+Returns the metaWeblog struct.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  postid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>return</strong>: <em>Object</em>  struct <code>Post</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">getPost</span> = 
+		<span class="keyword">function</span>(<span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.getPost'</span>, 
+			<span class="variable">postid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Retrieves a list of the most recent existing post using the metaWeblog API. 
+Returns the metaWeblog struct collection.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  blogid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>param</strong>: <em>Integer</em>  numberOfPosts</p></li><li><p><strong>return</strong>: <em>Array</em>  array of struct <code>Post</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">getRecentPosts</span> = 
+		<span class="keyword">function</span>(<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">numberOfPosts</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.getRecentPosts'</span>, 
+			<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">numberOfPosts</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Makes a new file to a designated blog using the metaWeblog API. 
+Returns url as a string of a struct.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  blogid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>param</strong>: <em>Object</em>  file, struct <code>FileData</code></p></li><li><p><strong>return</strong>: <em>Object</em>  struct <code>UrlData</code></p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">newMediaObject</span> = 
+		<span class="keyword">function</span>(<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">file</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.newMediaObject'</span>, 
+			<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">file</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Makes a new post to a designated blog using the metaWeblog API. 
+Returns postid as a string.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  blogid</p></li><li><p><strong>param</strong>: <em>String</em>  username</p></li><li><p><strong>param</strong>: <em>String</em>  password</p></li><li><p><strong>param</strong>: <em>Object</em>  post, struct <code>Post</code></p></li><li><p><strong>return</strong>: <em>String</em>  new post id</p></li><li><p><strong>api</strong>: <em>public</em></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="class">MetaWeblog</span>.<span class="variable">prototype</span>.<span class="variable">newPost</span> = 
+		<span class="keyword">function</span>(<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">post</span>, <span class="variable">callback</span>) {
+	<span class="this">this</span>.<span class="variable">client</span>.<span class="variable">request</span>(<span class="string">'metaWeblog.newPost'</span>, 
+			<span class="variable">blogid</span>, <span class="variable">username</span>, <span class="variable">password</span>, <span class="variable">post</span>, <span class="variable">callback</span>);
+};</code></pre>
+</td>
+</tr>	</body>
+</html></tbody></table>
