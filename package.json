@@ -1,0 +1,21 @@
+{
+  "name": "metaweblog",
+  "description": "MetaWeblog API on Nodejs",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fengmk2/metaweblog.git"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.cnblogs.com/)",
+  "keywords": ["metaweblog", "xmlrpc", "blog", "xml-rpc"],
+  "main": "index",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "libxmljs": "*"
+  },
+  "engines": {
+    "node": "*"
+  }
+}
